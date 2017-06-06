@@ -1,0 +1,21 @@
+#!/bin/bash
+if [ $1 = '32' ]; then
+	echo "ATmega 32"
+	avr-gcc -w -mmcu=atmega32 -c lcd1.c
+	echo "Compiled"
+	avr-gcc -w -mmcu=atmega32 lcd1.o -o lcd1
+	echo "Built executable"
+	avr-objcopy -O ihex lcd1 lcd1.hex
+	echo "Built hex"
+	sudo avrdude -c usbasp -p m32 -U flash:w:lcd1.hex
+else	
+	echo "ATmega 16"
+	avr-gcc -w -mmcu=atmega16 -c lcd1.c
+	echo "Compiled"
+	avr-gcc -w -mmcu=atmega16 lcd1.o -o lcd1
+	echo "Built executable"
+	avr-objcopy -O ihex lcd1 lcd1.hex
+	echo "Built hex"
+	sudo avrdude -c usbasp -p m16 -U flash:w:lcd1.hex
+fi
+

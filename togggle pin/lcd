@@ -1,0 +1,21 @@
+#!/bin/bash
+if [ $1='32' ]; then
+	echo "ATmega 32"
+	avr-gcc -w -mmcu=atmega32 -c port_test.c
+	echo "Compiled"
+	avr-gcc -w -mmcu=atmega32 port_test.o -o port_test
+	echo "Built executable"
+	avr-objcopy -O ihex port_test port_test.hex
+	echo "Built hex"
+	sudo avrdude -c usbasp -p m32 -U flash:w:port_test.hex
+else	
+	echo "ATmega 16"
+	avr-gcc -w -mmcu=atmega16 -c port_test.c
+	echo "Compiled"
+	avr-gcc -w -mmcu=atmega16 port_test.o -o port_test
+	echo "Built executable"
+	avr-objcopy -O ihex port_test port_test.hex
+	echo "Built hex"
+	sudo avrdude -c usbasp -p m16 -U flash:w:port_test.hex
+fi
+
