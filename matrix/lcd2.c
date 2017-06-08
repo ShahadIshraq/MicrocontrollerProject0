@@ -16,9 +16,16 @@ void matrixRotateLeft(unsigned char *);
 void flush() ;
 void trans();
 
-volatile unsigned int status;
+volatile int status;
 
 int enemiesr[5], enemiesc[5], enemiess[5];
+int bullet=0;
+int br, bc;
+int count=0;
+int bulletcnt=0;
+int countenemy=0;
+int pos=0, pos1=0, pos2=0, pos3=0, pos4=0;
+int bulletstatus;
 
 ISR(INT0_vect)
 {
@@ -428,7 +435,137 @@ void make()
 	}
 }
 
+void shoot(int status)
+{
+    int i, j;
+    if (status==1)
+    {
+        if(check(br, bc))
+        {
+            br--;
+            if (game[br][bc]=='*')
+            {
+                if (bc<4)
+                {
+                    for (i=0; i<4; i++)
+                    {
+                        for (j=0; j<4; j++)
+                        {
+                            // _delay_ms(10000);
+                            game[i][j]='.';
+                        }
+                    }
+                    game[0][0]=game[0][1]=game[0][2]='*';
+                    game[1][1]='*';
+                    pos1=0;
+                }
+                else
+                {
+                    for (i=0; i<4; i++)
+                    {
+                        for (j=4; j<8; j++)
+                        {
+                            game[i][j]='.';
+                        }
+                    }
+                    game[0][5]=game[0][6]=game[0][7]='*';
+                    game[1][6]='*';
+                    pos2=0;   
+                }
+                bullet=0;
+            }
+            else
+            {
+                game[br][bc]='*';
+            }
+            if(br+1!=r) game[br+1][bc]='.';
+        }
+        else if (br!=r || bc!=c)
+        {
+            game[br][bc]='.';
+            bullet=0;
+        }
+    }
 
+    if (status==2)
+    {
+        if(check(br, bc))
+        {
+            br++;
+            if (game[br][bc]=='*')
+            {
+                if (bc<4)
+                {
+                    for (i=12; i<16; i++)
+                    {
+                        for (j=0; j<4; j++)
+                        {
+                            game[i][j]='.';
+                        }
+                    }
+                    game[15][0]=game[15][1]=game[15][2]='*';
+                    game[14][1]='*';
+                    pos3=0;
+                }
+                else
+                {
+                    for (i=12; i<16; i++)
+                    {
+                        for (j=4; j<8; j++)
+                        {
+                            game[i][j]='.';
+                        }
+                    }
+                    game[15][5]=game[15][6]=game[15][7]='*';
+                    game[14][6]='*';
+                    pos4=0;   
+                }
+                bullet=0;
+            }
+            else
+            {
+                game[br][bc]='*';
+            }
+            if(br+1!=r) game[br+1][bc]='.';
+        }
+        else if (br!=r || bc!=c)
+        {
+            game[br][bc]='.';
+            bullet=0;
+        }
+    }
+
+    if (status==3)
+    {
+        if(check(br, bc))
+        {
+            bc++;
+            game[br][bc]='*';
+            if(bc-1!=c) game[br][bc-1]='.';
+        }
+        else if (br!=r || bc!=c)
+        {
+            game[br][bc]='.';
+            bullet=0;
+        }
+    }
+    if (status==4)
+    {
+        if(check(br, bc))
+        {
+            bc--;
+            game[br][bc]='*';
+            if(bc+1!=c) game[br][bc+1]='.';
+        }
+        else if (br!=r || bc!=c)
+        {
+            game[br][bc]='.';
+            bullet=0;
+        }
+    }
+}
+
+int move=0;
 
 int main(void)
 {
@@ -439,26 +576,35 @@ int main(void)
 	DDRB=0xff;
 	DDRC=0xff;
 	DDRD = 0xf0;
+    // PORTD = 0x01;
 //	MCUCSR = (1<<JTD);
 	init();
 	char ch;
-	int count=0;
-    int countenemy=0;
-    int pos=0, pos1=0, pos2=0, pos3=0, pos4=0;
-
 	GICR = (1<<INT1 | 1<<INT0);
 	MCUCR = MCUCR | 0b00001010;
 	MCUCR = MCUCR & 0b11111010;
 	sei();
 	while(1)
 	{
-		//int temp = rand()%4;
-//        ch = in[temp];
-        // if (pos%5==0)
-        // {
-        //     for (i=0; i<200000000; i++){};
-        //     shoot(status);
-        // }
+        if ((PIND & 0x01) == 0x01)
+        {
+            // _delay_ms(10000000);
+            if (bullet==0)
+            {
+                bullet=1;
+                bulletstatus=status;
+                br=r, bc=c;
+            }
+        }
+
+        if ((PIND & 0x02) == 0x02)
+        {
+            // _delay_ms(10000000);
+            if (move==0) move=1;
+            else if (move==1) move=0;
+        }
+
+        bulletcnt++;
         count++;
         countenemy++;
         make();
@@ -466,7 +612,15 @@ int main(void)
         drawCharRed();
         int i;
         char ch;
-        if(count>10)
+        if(bulletcnt>10)
+        {
+            if (bullet==1)
+            {
+                shoot(bulletstatus);
+            }
+            bulletcnt=0;
+        }
+        if(count>10 && move==0)
         {
 	        if (status==1)
 	        {
@@ -486,7 +640,7 @@ int main(void)
 	        }
 	        count = 0;
         }
-        if (countenemy>20)
+        if (countenemy>10)
         {
             ch=s1[pos1%9];
             if (ch=='w')
@@ -625,19 +779,6 @@ void drawCharRed()
  //        PORTA = 0x00;
 	// 	PORTC = 0x01;
 	// }
-}
-
-
-void matrixRotateLeft(unsigned char *character)
-{
-	int i;
-	for (i=0; i<=7; i++)
-	{
-		unsigned char MSB = character[i] & 0b10000000;
-		MSB = MSB >> 7;
-		character[i] = character[i] << 1;
-		character[i] = character[i] | MSB;
-	}
 }
 
 void trans()
