@@ -1,11 +1,3 @@
-/*
- * GccApplication1.c
- *
- * Created: 5/1/2017 3:00:24 PM
- *  Author: WhiteWalker
- */ 
-
-
 #include <avr/io.h>
 #include <stdio.h>
 #define F_CPU 1000000UL
@@ -51,10 +43,10 @@ void init()
 void draw(unsigned char * matrix)
 {
 	unsigned char i;
-	for (i = 0; i < 15; ++i)
+	for (i = 0; i < 8; ++i)
 	{
 		PORTD = i;
-//		PORTA = 0b00100010;
-		_delay_ms(900);
+		PORTA = 1<<i | 1<<(8-i);
+		_delay_ms(500);
 	}
 }

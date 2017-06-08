@@ -11,16 +11,19 @@
 
 void main(void)
 {
-	DDRD=0xff; //PORTB as OUTPUT
-	PORTD=0x00; //All pins of PORTB LOW
+	DDRA=0xff; //PORTB as OUTPUT
+	PORTA=0x00; //All pins of PORTB LOW
+	DDRB=0xff; //PORTB as OUTPUT
+	PORTB=0x00; //All pins of PORTB LOW
 
 	unsigned int i;
 	unsigned char t = 0;
 	while(1) //Infinite loop
 	{
-		PORTD = t;			
-		_delay_ms(100);
-		if(t==0) t = 0xFF;
-		else t = 0;
+		PORTA = 0xFF;//t;			
+		PORTB = 0x00;//t;			
+		_delay_ms(1000);
+		// if(t==0) t = 0xFF;
+		// else t = 0;
 	}
 }

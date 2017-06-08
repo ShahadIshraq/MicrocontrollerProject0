@@ -1,5 +1,6 @@
 #!/bin/bash
-if [ $1='32' ]; then
+echo $1 
+if [ $1 = 32 ]; then
 	echo "ATmega 32"
 	avr-gcc -w -mmcu=atmega32 -c Interrupt.c
 	echo "Compiled"
